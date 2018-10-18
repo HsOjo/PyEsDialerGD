@@ -43,26 +43,34 @@ class EsDialerGD:
         info = self._info
 
         headers = build_headers(user_agent=config.get('user_agent'))
-        resp = requests.get('http://baidu.com', headers=headers)
-        resp_str = resp.content.decode('gbk', errors='ignore')
+        try:
+            resp = requests.get('http://baidu.com', headers=headers, timeout=3)
+            resp_str = resp.content.decode('gbk', errors='ignore')
 
-        index_url = resp.url
-        result = 'index.cgi' in index_url
-        if result:
+            index_url = resp.url
+            if 'index.cgi' in index_url:
+                info['index_url'] = index_url
+            elif info.get('index_url') is not None:
+                resp = requests.get(info['index_url'], headers=headers)
+                resp_str = resp.content.decode('gbk', errors='ignore')
+
             ticket_url = common.get_tag_content(resp_str, 'ticket-url')
             auth_url = common.get_tag_content(resp_str, 'auth-url')
 
-            if ticket_url != '':
+            result = ticket_url != '' and auth_url != ''
+            if result:
                 info['ticket_url'] = ticket_url
-            if auth_url != '':
                 info['auth_url'] = auth_url
 
-            ipv4_addr = common.str_extract(resp_str, 'wlanuserip=', '&')
-            if ipv4_addr == '':
-                ipv4_addr = common.str_extract(resp_str, 'wlanuserip=', '"')
+                ipv4_addr = common.str_extract(resp_str, 'wlanuserip=', '&')
+                if ipv4_addr == '':
+                    ipv4_addr = common.str_extract(resp_str, 'wlanuserip=', '"')
 
-            if ipv4_addr != '':
                 info['ipv4_addr'] = ipv4_addr
+                Config.dump_data('info.json', self._info)
+        except Exception as e:
+            print('[init] %s' % e)
+            result = False
 
         return result
 
@@ -197,4 +205,7 @@ class EsDialerGD:
         cdc_checksum = common.md5_str(data)
         headers = self._build_headers(cdc_checksum)
 
-        requests.post(info['term_url'], data.encode('utf8'), headers=headers)
+        try:
+            requests.post(info['term_url'], data.encode('utf8'), headers=headers, timeout=3)
+        except Exception as e:
+            print('[term] %s' % e)

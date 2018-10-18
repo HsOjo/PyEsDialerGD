@@ -1,4 +1,5 @@
 import time
+import traceback
 
 from es_dialer_gd import EsDialerGD
 
@@ -17,9 +18,11 @@ if client.init():
                     else:
                         print('[%s]keep failed.' % (i + 1))
                 time.sleep(expires - 30)
+            except KeyboardInterrupt:
+                pass
             except:
-                import traceback
                 traceback.print_exc()
+            finally:
                 client.term()
                 print('term completed.')
                 break
