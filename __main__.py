@@ -8,12 +8,15 @@ if client.init():
     print('init success.')
     if client.auth():
         print('auth success.')
+        k = 0
         while True:
             try:
                 expires = -1
                 for i in range(3):
                     expires = client.keep()
                     if expires != -1:
+                        k += 1
+                        print('[%s]keep success. %ds' % (k, expires - 30))
                         break
                     else:
                         print('[%s]keep failed.' % (i + 1))

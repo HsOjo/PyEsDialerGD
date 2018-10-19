@@ -51,7 +51,7 @@ class EsDialerGD:
             if 'index.cgi' in index_url:
                 info['index_url'] = index_url
             elif info.get('index_url') is not None:
-                resp = requests.get(info['index_url'], headers=headers)
+                resp = requests.get(info['index_url'], headers=headers, timeout=3)
                 resp_str = resp.content.decode('gbk', errors='ignore')
 
             ticket_url = common.get_tag_content(resp_str, 'ticket-url')
@@ -109,7 +109,7 @@ class EsDialerGD:
         cdc_checksum = common.md5_str(data)
         headers = self._build_headers(cdc_checksum)
 
-        resp = requests.post(info['ticket_url'], data.encode('utf8'), headers=headers)
+        resp = requests.post(info['ticket_url'], data.encode('utf8'), headers=headers, timeout=3)
         resp_str = resp.content.decode('utf8')
         resp_str_raw = payload.payload_decode(resp_str)
 
@@ -143,7 +143,7 @@ class EsDialerGD:
 
             headers = self._build_headers(cdc_checksum)
 
-            resp = requests.post(info['auth_url'], data.encode('utf8'), headers=headers)
+            resp = requests.post(info['auth_url'], data.encode('utf8'), headers=headers, timeout=3)
             resp_str = resp.content.decode('utf8', errors='ignore')
             resp_str_raw = payload.payload_decode(resp_str)
 
@@ -163,30 +163,34 @@ class EsDialerGD:
         return result
 
     def keep(self):
-        config = self._config
-        info = self._info
+        try:
+            config = self._config
+            info = self._info
 
-        self._update_time()
-        data = payload.build_keep_payload(
-            config.get('user_agent'),
-            info['local_time'],
-            info['ticket'],
-            config.get('host_name'),
-            config.get('client_id')
-        )
-        cdc_checksum = common.md5_str(data)
-        headers = self._build_headers(cdc_checksum)
+            self._update_time()
+            data = payload.build_keep_payload(
+                config.get('user_agent'),
+                info['local_time'],
+                info['ticket'],
+                config.get('host_name'),
+                config.get('client_id')
+            )
+            cdc_checksum = common.md5_str(data)
+            headers = self._build_headers(cdc_checksum)
 
-        resp = requests.post(info['keep_url'], data.encode('utf8'), headers=headers)
-        resp_str = resp.content.decode('utf8')
-        resp_str_raw = payload.payload_decode(resp_str)
+            resp = requests.post(info['keep_url'], data.encode('utf8'), headers=headers, timeout=3)
+            resp_str = resp.content.decode('utf8')
+            resp_str_raw = payload.payload_decode(resp_str)
 
-        result = -1
-        interval = common.get_tag_content(resp_str_raw, 'interval')
-        if interval != '':
-            result = int(interval)
-        else:
-            print('[keep] %s' % resp_str_raw)
+            result = -1
+            interval = common.get_tag_content(resp_str_raw, 'interval')
+            if interval != '':
+                result = int(interval)
+            else:
+                print('[keep] %s' % resp_str_raw)
+        except Exception as e:
+            print('[keep] %s' % e)
+            result = -1
 
         return result
 
