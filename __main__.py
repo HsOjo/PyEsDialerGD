@@ -15,23 +15,22 @@ if client.init():
                 for i in range(3):
                     expires = client.keep()
                     if expires != -1:
+                        expires -= 30
                         k += 1
-                        print('[%s]keep success. %ds' % (k, expires - 30))
+                        print('[%s]keep success. %ds' % (k, expires))
                         break
                     else:
                         print('[%s]keep failed.' % (i + 1))
-                time.sleep(expires - 30)
+                time.sleep(expires)
             except KeyboardInterrupt:
                 pass
             except:
                 traceback.print_exc()
-            finally:
-                client.term()
-                print('term completed.')
                 break
     else:
         print('auth failed.')
 else:
     print('init failed.')
-    client.term()
-    print('term completed.')
+
+client.term()
+print('term completed.')
