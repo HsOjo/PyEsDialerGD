@@ -20,8 +20,9 @@ if client.init():
                         print('[%s]keep success. %ds' % (k, expires))
                         break
                     else:
-                        print('[%s]keep failed.' % (i + 1))
-                time.sleep(expires)
+                        print('[%s][%s]keep failed.' % (k, i + 1))
+                if expires > 0:
+                    time.sleep(expires)
             except KeyboardInterrupt:
                 pass
             except:
