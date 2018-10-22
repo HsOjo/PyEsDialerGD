@@ -24,7 +24,7 @@ if client.init():
                 if expires > 0:
                     time.sleep(expires)
             except KeyboardInterrupt:
-                pass
+                break
             except:
                 traceback.print_exc()
                 break
