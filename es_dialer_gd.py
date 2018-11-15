@@ -84,7 +84,7 @@ class EsDialerGD:
             cdc_domain=config.get('cdc_domain', "szpt"),
             cdc_school_id=config.get('cdc_school_id', "113"),
             cdc_area=config.get('cdc_area', "0755"),
-            user_agent=config.get('user_agent', "CCTP/mac1/5007"),
+            user_agent=config.get('user_agent', "CCTP/mac2/5009"),
             algo_id=config.get('algo_id', "54EB0E0D-58FE-46E2-8629-0A517E2785F4"),
             client_id=config.get('client_id', "2CDEABEA-BA33-5C55-9DCA-C8F0337897EA"),
             cdc_checksum=cdc_checksum
